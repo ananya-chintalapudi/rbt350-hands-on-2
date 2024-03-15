@@ -3,6 +3,7 @@
 #include "HandsOn2Util.hpp"
 
 long last_command = 0; // To keep track of when we last commanded the motors
+float last_error = 0;
 C610Bus<CAN2> bus;     // Initialize the Teensy's CAN bus to talk to the motors
 
 const int LOOP_DELAY_MILLIS = 5; // Wait for 0.005s between motor updates.
@@ -14,7 +15,17 @@ float pd_control(float pos,
                  float Kp,
                  float Kd)
 {
-  return 0.0; // YOUR CODE HERE
+  //Kp = proportional gain
+  //Kd = derivative gain
+  float error_position = target - pos;
+  float error_prev = last_error; //???
+  float time = pos/vel;
+  float time_prev = last_command;
+  float time_change = time - time_prev;
+  float first_term = Kp * error_position;
+  float second_term = Kd * ((error_position - error_prev)/time_change);
+  last_error = error_position;
+  return first_term + second_term; // YOUR CODE HERE
 }
 
 /* Sanitize current command to make it safer.
